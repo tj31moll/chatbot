@@ -48,6 +48,11 @@ def handle_message(update: Update, context: CallbackContext):
         return
 
     response = generate_response(update.message.text)
+
+    # Save user input and bot response to a file
+    with open("training_data.txt", "a") as f:
+        f.write(f"{input_text}\n{response}\n")
+
     update.message.reply_text(response)
 
 def generate_response(input_text: str):
