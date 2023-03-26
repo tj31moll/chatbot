@@ -21,6 +21,7 @@ This is a self-training Telegram bot that can engage in conversations and rememb
 
 1. Clone the repository:
 
+apt update && apt install nano sudo git python3 python3-pip
 git clone https://github.com/your-username/self-training-telegram-bot.git
 
 csharp
@@ -28,9 +29,12 @@ csharp
 
 2. Change into the project directory:
 
+apt update && apt install nano sudo git python3 python3-pip
 cd self-training-telegram-bot
-
-arduino
+pip install python-telegram-bot==13.7 
+transformers==4.11.3 
+python3 -m venv my_bot_env 
+source my_bot_env/bin/activate
 
 
 3. Set up a virtual environment (optional but recommended):
@@ -50,7 +54,6 @@ css
 
 5. Add your Telegram bot API token to the `self_training_telegram_bot.py` script:
 
-```python
 updater = Updater("YOUR_API_TOKEN", use_context=True)
 
 Replace YOUR_API_TOKEN with your actual Telegram bot API token.
