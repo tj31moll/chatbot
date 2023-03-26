@@ -5,15 +5,20 @@ import logging
 import matplotlib.pyplot as plt
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+#from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load GPT-2 model and tokenizer
-model = GPT2LMHeadModel.from_pretrained("gpt2")
-tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+#model = GPT2LMHeadModel.from_pretrained("gpt2")
+#tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("Nicki/gpt3-base")
+
+model = AutoModelForCausalLM.from_pretrained("Nicki/gpt3-base")
 
 # Set up SQLite database
 def setup_database():
