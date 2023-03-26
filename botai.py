@@ -14,11 +14,17 @@ logger = logging.getLogger(__name__)
 # Load GPT-2 model and tokenizer
 #model = GPT2LMHeadModel.from_pretrained("gpt2")
 #tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+#from transformers import AutoTokenizer, AutoModelForCausalLM
+#tokenizer = AutoTokenizer.from_pretrained("Nicki/gpt3-base")
+#model = AutoModelForCausalLM.from_pretrained("Nicki/gpt3-base")
+
+#from transformers import AutoTokenizer, AutoModelForCausalLM
+#tokenizer = AutoTokenizer.from_pretrained("ingen51/DialoGPT-medium-GPT4")
+#model = AutoModelForCausalLM.from_pretrained("ingen51/DialoGPT-medium-GPT4")
+
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
-tokenizer = AutoTokenizer.from_pretrained("Nicki/gpt3-base")
-
-model = AutoModelForCausalLM.from_pretrained("Nicki/gpt3-base")
+tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-large")
+model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-large")
 
 # Set up SQLite database
 def setup_database():
