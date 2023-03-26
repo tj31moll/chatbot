@@ -47,6 +47,11 @@ def handle_message(update: Update, context: CallbackContext):
     global conn
     input_text = update.message.text.lower()
 
+    # Check if the wake word is present in the user's input
+    wake_word = "bot"
+    if wake_word not in input_text:
+        return
+
     if input_text.startswith("what did i"):
         key = input_text[10:].strip()
         cur = conn.cursor()
