@@ -73,6 +73,8 @@ def handle_message(update: Update, context: CallbackContext):
 
 def generate_response(input_text: str):
     input_ids = tokenizer.encode(input_text, return_tensors='pt')
+    attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=model.device)
+    pad_token_id = tokenizer.eos_token_id
     output = model.generate(input_ids, max_length=50, num_return_sequences=1, no_repeat_ngram_size=2, early_stopping=True)
     response = tokenizer.decode(output[0], skip_special_tokens=True)
     return response
