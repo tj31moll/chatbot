@@ -115,7 +115,7 @@ def generate_chart(update: Update, context: CallbackContext):
 
 def main():
     # Replace 'YOUR_API_TOKEN' with your Telegram bot's API token
-    updater = Updater("YOUR_API_TOKEN", use_context=True)
+    updater = Updater("YOUR_API_TOKEN")
 
     dp = updater.dispatcher
 
