@@ -120,8 +120,13 @@ def generate_response(chat_id: int, input_text: str):
     # Get the conversation history for the chat_id
     conversation_history = get_conversation_history(chat_id)
 
+    max_input_length = 1020  # This can be any value less than the maximum position embeddings
+
     # Concatenate the conversation history with the new input_text
     full_input = " ".join(conversation_history) + input_text
+
+    # Limit the full_input to a certain length
+    full_input = full_input[:max_input_length]
 
     input_ids = tokenizer.encode(full_input, return_tensors='pt')
     attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=model.device)
@@ -133,6 +138,7 @@ def generate_response(chat_id: int, input_text: str):
     save_conversation_history(chat_id, response)
 
     return response
+
 
 def remember(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
