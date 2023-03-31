@@ -207,8 +207,8 @@ def main():
     # Add command and message handlers
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler('weather', weather))
-    dispatcher.add_handler(CommandHandler("remember", remember, pass_args=True))
-    dispatcher.add_handler(CommandHandler("recall", recall, pass_args=True))
+    dp.add_handler(CommandHandler("remember", remember, pass_args=True))
+    dp.add_handler(CommandHandler("recall", recall, pass_args=True))
     dp.add_handler(MessageHandler(Filters.regex(r'(?i)remember .*') & ~Filters.command, remember))
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command & Filters.group, handle_message))
 
