@@ -17,9 +17,9 @@ TOKEN = "YOUR_TOKEN_HERE"
 ALLOWED_CHAT_IDS = [123456789, 987654321]  # Replace with the allowed chat IDs
 OPENWEATHERMAP_API_KEY = 'your_openweathermap_api_key'
 
-from transformers import AutoTokenizer, AutoModelForCausalLM
-tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-large")
-model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-large")
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+tokenizer = AutoTokenizer.from_pretrained("facebook/blenderbot-400M-distill")
+model = AutoModelForSeq2SeqLM.from_pretrained("facebook/blenderbot-400M-distill")
 
 # Set up SQLite database
 def setup_database():
