@@ -101,7 +101,8 @@ def handle_message(update: Update, context: CallbackContext):
             save_conversation_history(chat_id, f"I don't have any text saved under the keyword '{keyword}'.")
     else:
         save_conversation_history(chat_id, input_text)
-        response = generate_response(chat_id, update.message.text)
+#        response = generate_response(chat_id, update.message.text)
+        response = generate_response(chat_id, update.message.text.replace(wake_word, '', 1).strip())
 
         # Save user input and bot response to a file
         with open("training_data.txt", "a") as f:
