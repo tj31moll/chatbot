@@ -210,7 +210,7 @@ def main():
     dp.add_handler(CommandHandler("remember", remember, pass_args=True))
     dp.add_handler(CommandHandler("recall", recall, pass_args=True))
     dp.add_handler(MessageHandler(Filters.regex(r'(?i)remember .*') & ~Filters.command, remember))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command & Filters.group, handle_message))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command & Filters.chat_type.groups, handle_message))
 
     # Start the bot
     updater.start_polling()
