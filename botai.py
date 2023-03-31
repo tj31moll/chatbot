@@ -59,16 +59,21 @@ def start(update: Update, context: CallbackContext):
     update.message.reply_text("Hi! I'm a self-training Telegram bot. You can talk to me or ask me to remember something for you.")
 
 def save_conversation_history(chat_id: int, message: str):
-    global conn
-    cur = conn.cursor()
+    # Use a local connection instead of the global one
+    local_conn = sqlite3.connect("chatmemory.db")
+    cur = local_conn.cursor()
     cur.execute("INSERT INTO conversation_history (chat_id, message) VALUES (?, ?)", (chat_id, message))
-    conn.commit()
-
+    local_conn.commit()
+    local_conn.close()
+    
+    
 def get_conversation_history(chat_id: int):
-    global conn
-    cur = conn.cursor()
+    # Use a local connection instead of the global one
+    local_conn = sqlite3.connect("chatmemory.db")
+    cur = local_conn.cursor()
     cur.execute("SELECT message FROM conversation_history WHERE chat_id = ? ORDER BY id ASC", (chat_id,))
     results = cur.fetchall()
+    local_conn.close()
     return [result[0] for result in results]
 
 def handle_message(update: Update, context: CallbackContext):
