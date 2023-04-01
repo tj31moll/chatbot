@@ -175,7 +175,7 @@ def recall(update: Update, context: CallbackContext):
 
     conn = sqlite3.connect('memory.db')
     c = conn.cursor()
-    c.execute("SELECT text FROM memory WHERE keyword=?", (keyword,))
+    c.execute("SELECT value FROM memory WHERE keyword=?", (keyword,))
     result = c.fetchone()
     conn.close()
 
