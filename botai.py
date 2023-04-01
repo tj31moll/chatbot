@@ -27,8 +27,9 @@ def setup_database():
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS memory
                    (id INTEGER PRIMARY KEY,
-                    keyword TEXT UNIQUE,
-                    text TEXT)''')
+                    key TEXT UNIQUE,
+                    value TEXT)''')
+
 
     conn.commit()
     return conn
