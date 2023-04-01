@@ -156,7 +156,7 @@ def remember(update: Update, context: CallbackContext):
 
     conn = sqlite3.connect('memory.db')
     c = conn.cursor()
-    c.execute("INSERT OR REPLACE INTO memory (keyword, text) VALUES (?, ?)", (keyword, text_to_remember))
+    c.execute("INSERT OR REPLACE INTO memory (keyword, value) VALUES (?, ?)", (keyword, text_to_remember))
     conn.commit()
     conn.close()
 
