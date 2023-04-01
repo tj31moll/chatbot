@@ -27,7 +27,7 @@ def setup_database():
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS memory
                    (id INTEGER PRIMARY KEY,
-                    key TEXT UNIQUE,
+                    keyword TEXT UNIQUE,
                     value TEXT)''')
 
 
@@ -89,14 +89,14 @@ def handle_message(update: Update, context: CallbackContext):
     if input_text.startswith("remember "):
         keyword, text_to_remember = input_text[9:].split(" ", 1)
         cur = conn.cursor()
-        cur.execute("INSERT OR REPLACE INTO memory (key, value) VALUES (?, ?)", (keyword, text_to_remember))
+        cur.execute("INSERT OR REPLACE INTO memory (keyword, value) VALUES (?, ?)", (keyword, text_to_remember))
         conn.commit()
         update.message.reply_text(f"I have saved the text under the keyword '{keyword}'.")
         save_conversation_history(chat_id, input_text)
     elif input_text.startswith("recall "):
         keyword = input_text[7:].strip()
         cur = conn.cursor()
-        cur.execute("SELECT value FROM memory WHERE key=?", (keyword,))
+        cur.execute("SELECT value FROM memory WHERE keyword=?", (keyword,))
         result = cur.fetchone()
         save_conversation_history(chat_id, input_text)
         if result:
