@@ -80,6 +80,10 @@ def handle_message(update: Update, context: CallbackContext):
 
     if chat_id not in ALLOWED_CHAT_IDS:
         return
+    
+    wake_word = "jbot"
+    if wake_word.lower() not in input_text:
+        return
 
     if input_text.startswith("remember "):
         keyword, text_to_remember = input_text[9:].split(" ", 1)
