@@ -26,30 +26,27 @@ def setup_database():
     conn = sqlite3.connect("memory.db")
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS memory
-                   (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    key TEXT,
-                    value TEXT)''')
+                   (id INTEGER PRIMARY KEY,
+                    keyword TEXT UNIQUE,
+                    text TEXT)''')
+
     conn.commit()
     return conn
 
 conn = setup_database()
 memory = {}
 
-
 def setup_database2():
     conn = sqlite3.connect("chatmemory.db")
     cur = conn.cursor()
-    cur.execute('''CREATE TABLE IF NOT EXISTS memory
-                   (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    key TEXT,
-                    value TEXT)''')
-
     cur.execute('''CREATE TABLE IF NOT EXISTS conversation_history
                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
                     chat_id INTEGER,
                     message TEXT)''')
     conn.commit()
     return conn
+
+conn = setup_database2()
 
 def start(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
