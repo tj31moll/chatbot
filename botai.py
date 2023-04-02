@@ -7,7 +7,10 @@ import logging
 import matplotlib.pyplot as plt
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from apscheduler.schedulers.background import BackgroundScheduler
+import datetime
 #from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -209,7 +212,31 @@ def weather(update: Update, context: CallbackContext):
         weather_info = get_weather(city)
         update.message.reply_text(weather_info)
 
+def send_weather_updates(chat_id: int):
+    if chat_id not in ALLOWED_CHAT_IDS:
+        return
 
+    city = 'New York'  # Replace with the city you want to get updates for
+    weather_info = get_weather(city)
+    updater.bot.send_message(chat_id=chat_id, text=weather_info)
+
+def schedule_weather_updates():
+    scheduler = BackgroundScheduler()
+    times = ['08:00', '12:00', '18:00']  # Update these to the times you want weather updates
+    
+    for chat_id in ALLOWED_CHAT_IDS:
+        for time in times:
+            hour, minute = map(int, time.split(':'))
+            scheduler.add_job(
+                send_weather_updates, 
+                'cron', 
+                args=[chat_id],  # Pass the chat_id as an argument
+                hour=hour, 
+                minute=minute,
+                timezone='UTC'  # Update this to your desired timezone
+            )
+    
+    scheduler.start()
 
 def main():
     # Replace 'YOUR_API_TOKEN' with your Telegram bot's API token
@@ -217,7 +244,8 @@ def main():
     conn = setup_database()
     conn = setup_database2()
     dp = updater.dispatcher
-
+    schedule_weather_updates()
+    
     # Add command and message handlers
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler('weather', weather))
