@@ -188,17 +188,52 @@ def recall(update: Update, context: CallbackContext):
     else:
         update.message.reply_text(f"I don't have any text saved under the keyword '{keyword}'.")
 
+import datetime
+
 def get_weather(city: str) -> str:
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHERMAP_API_KEY}&units=metric'
+    # Get the current weather
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHERMAP_API_KEY}&units=imperial'
     response = requests.get(url)
     data = response.json()
 
-    if data.get('cod') == 200:
-        weather = data['weather'][0]['description']
-        temp = data['main']['temp']
-        return f'The weather in {city} is {weather} with a temperature of {temp}°C.'
-    else:
+    if data.get('cod') != 200:
         return f"Sorry, I couldn't find the weather for {city}."
+
+    current_weather = data['weather'][0]['description']
+    current_temp = data['main']['temp']
+    temp_min = data['main']['temp_min']
+    temp_max = data['main']['temp_max']
+
+    # Get the 5-day forecast
+    forecast_url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={OPENWEATHERMAP_API_KEY}&units=imperial'
+    forecast_response = requests.get(forecast_url)
+    forecast_data = forecast_response.json()
+
+    if forecast_data.get('cod') != "200":
+        return f"Sorry, I couldn't find the 5-day forecast for {city}."
+
+    forecast_list = forecast_data['list']
+    daily_forecasts = {}
+    for forecast in forecast_list:
+        dt = datetime.datetime.fromtimestamp(forecast['dt'])
+        date = dt.date()
+        if date not in daily_forecasts:
+            daily_forecasts[date] = {
+                'min_temp': forecast['main']['temp_min'],
+                'max_temp': forecast['main']['temp_max'],
+                'weather': forecast['weather'][0]['description']
+            }
+        else:
+            daily_forecasts[date]['min_temp'] = min(daily_forecasts[date]['min_temp'], forecast['main']['temp_min'])
+            daily_forecasts[date]['max_temp'] = max(daily_forecasts[date]['max_temp'], forecast['main']['temp_max'])
+
+    # Format the output
+    result = f'The current weather in {city} is {current_weather} with a temperature of {current_temp}°F (low: {temp_min}°F, high: {temp_max}°F).\n\n5-day forecast:\n'
+    for date, daily_forecast in daily_forecasts.items():
+        result += f"{date.strftime('%A, %B %d')}: {daily_forecast['weather']} (low: {daily_forecast['min_temp']}°F, high: {daily_forecast['max_temp']}°F)\n"
+
+    return result.strip()
+
 
 def weather(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
