@@ -11,18 +11,23 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import datetime
 #from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TOKEN = "YOUR_TOKEN_HERE"
-ALLOWED_CHAT_IDS = [123456789, 987654321]  # Replace with the allowed chat IDs
-OPENWEATHERMAP_API_KEY = 'your_openweathermap_api_key'
+TOKEN = '59'
+ALLOWED_CHAT_IDS = [-108]  # Replace with the allowed chat IDs
+OPENWEATHERMAP_API_KEY = '59'
+
+#from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+#tokenizer = AutoTokenizer.from_pretrained("facebook/blenderbot-400M-distill")
+#model = AutoModelForSeq2SeqLM.from_pretrained("facebook/blenderbot-400M-distill")
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-tokenizer = AutoTokenizer.from_pretrained("facebook/blenderbot-400M-distill")
-model = AutoModelForSeq2SeqLM.from_pretrained("facebook/blenderbot-400M-distill")
+
+tokenizer = AutoTokenizer.from_pretrained("facebook/blenderbot-1B-distill")
+
+model = AutoModelForSeq2SeqLM.from_pretrained("facebook/blenderbot-1B-distill")
 
 # Set up SQLite database
 def setup_database():
@@ -32,6 +37,7 @@ def setup_database():
                    (id INTEGER PRIMARY KEY,
                     keyword TEXT UNIQUE,
                     value TEXT)''')
+
 
 
     conn.commit()
@@ -60,14 +66,16 @@ def start(update: Update, context: CallbackContext):
     update.message.reply_text("Hi! I'm a self-training Telegram bot. You can talk to me or ask me to remember something for you.")
 
 def save_conversation_history(chat_id: int, message: str):
-    # Use a local connection instead of the global one
+#    global conn
+#    cur = conn.cursor()
+#    cur.execute("INSERT INTO conversation_history (chat_id, message) VALUES (?, ?)", (chat_id, message))
+#    conn.commit()
     local_conn = sqlite3.connect("chatmemory.db")
     cur = local_conn.cursor()
     cur.execute("INSERT INTO conversation_history (chat_id, message) VALUES (?, ?)", (chat_id, message))
     local_conn.commit()
     local_conn.close()
-    
-    
+
 def get_conversation_history(chat_id: int):
     # Use a local connection instead of the global one
     local_conn = sqlite3.connect("chatmemory.db")
@@ -77,6 +85,13 @@ def get_conversation_history(chat_id: int):
     local_conn.close()
     return [result[0] for result in results]
 
+#def get_conversation_history(chat_id: int):
+#    global conn
+#    cur = conn.cursor()
+#    cur.execute("SELECT message FROM conversation_history WHERE chat_id = ? ORDER BY id ASC", (chat_id,))
+#    results = cur.fetchall()
+#    return [result[0] for result in results]
+
 def handle_message(update: Update, context: CallbackContext):
     global conn
     input_text = update.message.text.lower()
@@ -84,7 +99,7 @@ def handle_message(update: Update, context: CallbackContext):
 
     if chat_id not in ALLOWED_CHAT_IDS:
         return
-    
+
     wake_word = "jbot"
     if wake_word.lower() not in input_text:
         return
@@ -125,7 +140,7 @@ def generate_response(chat_id: int, input_text: str):
     # Get the conversation history for the chat_id
     conversation_history = get_conversation_history(chat_id)
 
-    max_input_length = 1020  # This can be any value less than the maximum position embeddings
+    max_input_length = 128  # This can be any value less than the maximum position embeddings
 
     # Concatenate the conversation history with the new input_text
     full_input = " ".join(conversation_history) + input_text
@@ -143,7 +158,6 @@ def generate_response(chat_id: int, input_text: str):
     save_conversation_history(chat_id, response)
 
     return response
-
 
 def remember(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
@@ -247,40 +261,43 @@ def weather(update: Update, context: CallbackContext):
         weather_info = get_weather(city)
         update.message.reply_text(weather_info)
 
-def send_weather_updates(chat_id: int):
+
+def send_weather_updates(updater: Updater, chat_id: int):
     if chat_id not in ALLOWED_CHAT_IDS:
         return
 
-    city = 'New York'  # Replace with the city you want to get updates for
+    city = 'West Caldwell'  # Replace with the city you want to get updates for
     weather_info = get_weather(city)
     updater.bot.send_message(chat_id=chat_id, text=weather_info)
 
-def schedule_weather_updates():
+def schedule_weather_updates(updater: Updater):
     scheduler = BackgroundScheduler()
-    times = ['08:00', '12:00', '18:00']  # Update these to the times you want weather updates
-    
+    times = ['07:30', '11:45', '17:00']  # Update these to the times you want weather updates
+
     for chat_id in ALLOWED_CHAT_IDS:
         for time in times:
             hour, minute = map(int, time.split(':'))
             scheduler.add_job(
-                send_weather_updates, 
-                'cron', 
-                args=[chat_id],  # Pass the chat_id as an argument
-                hour=hour, 
+                send_weather_updates,
+                'cron',
+                args=[updater, chat_id],  # Pass the updater and chat_id as arguments
+                hour=hour,
                 minute=minute,
                 timezone='UTC'  # Update this to your desired timezone
             )
-    
+
     scheduler.start()
+
+
 
 def main():
     # Replace 'YOUR_API_TOKEN' with your Telegram bot's API token
     updater = Updater(TOKEN)
+    schedule_weather_updates(updater)
     conn = setup_database()
     conn = setup_database2()
     dp = updater.dispatcher
-    schedule_weather_updates()
-    
+
     # Add command and message handlers
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler('weather', weather))
